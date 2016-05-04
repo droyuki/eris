@@ -1,0 +1,31 @@
+jobs:
+- name: deployContract
+  job:
+    deploy:
+      contract: test.sol
+      instance: all
+      wait: true
+
+- name: setPrepaid
+  job:
+    call:
+      destination: $deployContract
+      data: setPrepaid
+      amount: 100
+      abi: testManager
+      wait: true
+
+- name: getValue
+  job:
+    call:
+      destination: $deployContract
+      data: getValue
+      abi: testManager
+      wait: true
+
+- name: assert
+  job:
+    assert:
+      key: 100
+      relation: eq
+      val: $getValue

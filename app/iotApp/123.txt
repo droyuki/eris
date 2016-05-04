@@ -1,0 +1,67 @@
+1 contract Coin {                                                 |  1 jobs:                                                          
+  2     // The keyword "public" makes those variables               |  2 - name: deployCoin                                             
+  3     // readable from outside.                                   |  3   job:                                                         
+  4     address public minter;                                      |  4     deploy:                                                    
+  5     mapping (address => uint) public balances;                  |  5       contract: idi.sol                                        
+  6                                                                 |  6       wait: false                                              
+  7     // Events allow light clients to react on                   |  7                                                                
+  8     // changes efficiently.                                     |  8 - name: afu_price                                              
+  9     event Sent(address from, address to, uint amount);          |  9   job:                                                         
+ 10                                                                 | 10     set:                                                       
+ 11     // This is the constructor whose code is                    | 11       val: 50                                                  
+ 12     // run only when the contract is created.                   | 12                                                                
+ 13     function Coin() {                                           | 13 - name: dk_price                                               
+ 14         minter = msg.sender;                                    | 14   job:                                                         
+ 15     }                                                           | 15     set:                                                       
+ 16     function mint(address receiver, uint amount) {              | 16       val: 100                                                 
+ 17         if (msg.sender != minter) return;                       | 17                                                                
+ 18         balances[receiver] += amount;                           | 18 - name: afu_address                                            
+ 19     }                                                           | 19   job:                                                         
+ 20     function send(address receiver, uint amount) {              | 20     set:                                                       
+ 21         if (balances[msg.sender] < amount) return;              | 21       val: A054EA7A7DF6CDF43BC86182D813AEEA5D792C10            
+ 22         balances[msg.sender] -= amount;                         | 22                                                                
+ 23         balances[receiver] += amount;                           | 23 - name: dk_address                                             
+ 24         Sent(msg.sender, receiver, amount);                     | 24   job:                                                         
+ 25     }                                                           | 25     set:                                                       
+ 26     function query(address me) constant returns(uint retVal){   | 26       val: 5CBF4F81A589E98CB1964E9418F7E8B9915CBFC6            
+ 27         return balances[me];                                    | 27                                                                
+ 28     }                                                           | 28 - name: send2Afu                                               
+ 29     function getAddr() returns(address retVal){                 | 29   job:                                                         
+ 30         return minter;                                          | 30     call:                                                      
+ 31     }                                                           | 31       destination: $deployCoin                                 
+ 32 }                                                               | 32       data: send $afu_address $afu_price                       
+ 33                                                                 | 33       wait: true                                               
+~                                                                   | 34                                                                
+~                                                                   | 35 - name: send2Dk                                                
+~                                                                   | 36   job:                                                         
+~                                                                   | 37     call:                                                      
+~                                                                   | 38       destination: $deployCoin    
+																	  39       data: send $dk_address $dk_price                         
+ 11     // This is the constructor whose code is                    | 40       wait: true                                               
+ 12     // run only when the contract is created.                   | 41                                                                
+ 13     function Coin() {                                           | 42 - name: getClientAddr                                          
+ 14         minter = msg.sender;                                    | 43   job:                                                         
+ 15     }                                                           | 44     query-contract:                                            
+ 16     function mint(address receiver, uint amount) {              | 45       destination: $deployCoin                                 
+ 17         if (msg.sender != minter) return;                       | 46       data: minter                                             
+ 18         balances[receiver] += amount;                           | 47                                                                
+ 19     }                                                           | 48 - name: getAddr                                                
+ 20     function send(address receiver, uint amount) {              | 49   job:                                                         
+ 21         if (balances[msg.sender] < amount) return;              | 50     call:                                                      
+ 22         balances[msg.sender] -= amount;                         | 51       destination: $deployCoin                                 
+ 23         balances[receiver] += amount;                           | 52       data: getAddr                                            
+ 24         Sent(msg.sender, receiver, amount);                     | 53       wait: true                                               
+ 25     }                                                           | 54                                                                
+ 26     function query(address me) constant returns(uint retVal){   | 55 - name: deposit                                                
+ 27         return balances[me];                                    | 56   job:                                                         
+ 28     }                                                           | 57     call:                                                      
+ 29     function getAddr() returns(address retVal){                 | 58       destination: $deployCoin                                 
+ 30         return minter;                                          | 59       data: mint $getClientAddr 1000                           
+ 31     }                                                           | 60       wait: true                                               
+ 32 }                                                               | 61                                                                
+ 33                                                                 | 62 - name: query                                                  
+~                                                                   | 63   job:                                                         
+~                                                                   | 64     call:                                                      
+~                                                                   | 65       destination: $deployCoin                                 
+~                                                                   | 66       data: query $getClientAddr                               
+~                                                                   | 67       wait: true               

@@ -1,0 +1,20 @@
+jobs:
+- name: deployFundManager
+  job:
+    deploy:
+      contract: Bank.sol
+      wait: true
+
+- name: setBank
+  job:
+    call:
+      destination: $deployFundManager
+      data: setBank $newBankAddr
+      abi: FundManager
+
+- name: setBank
+  job:
+    call:
+      destination: $deployFundManager
+      data: setBank
+      abi: FundManager

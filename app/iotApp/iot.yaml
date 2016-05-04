@@ -1,0 +1,53 @@
+jobs:
+- name: deployContract
+  job:
+    deploy:
+      contract: iot.sol
+      instance: all
+      wait: true
+
+- name: validator1
+  job:
+    set:
+      val: 91C7AE2F1F98608C636D3BF578F4ACA79C7FD9C0
+
+- name: getOrCreatePurchase
+  job:
+    call:
+      destination: $deployContract
+      data: getOrCreatePurchase
+      abi: iotManager
+      wait: true
+      
+- name: getAddr
+  job:
+    call:
+      destination: $deployContract
+      data: getAddr $validator1
+      abi: iotManager
+      wait: true
+
+- name: prepay
+  job:
+    call:
+      destination: $deployContract
+      data: prepay
+      amount: 101
+      fee: 1
+      abi: iotManager
+      wait: true
+
+- name: getBalance
+  job:
+    call:
+      destination: $deployContract
+      data: getBalance $getAddr
+      abi: iotManager
+      wait: true
+
+- name: assert
+  job:
+    assert:
+      key: 100
+      relation: eq
+      val: $getBalance

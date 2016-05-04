@@ -1,0 +1,53 @@
+jobs:
+- name: deployPurchase
+  job:
+    deploy:
+      contract: Purchase.sol
+      amount: 500
+      wait: true
+
+- name: price
+  job:
+    set:
+      val: 500
+
+- name: init
+  job:
+    call:
+      destination: $deployPurchase
+      data: init $price
+      wait: true
+      
+- name: abort
+  job:
+    call:
+      destination: $deployPurchase
+      data: abort
+      wait: true
+
+- name: confirmPurchase
+  job:
+    call:
+      destination: $deployPurchase
+      data: confirmPurchase
+      wait: true
+
+- name: confirmReceived
+  job:
+    call:
+      destination: $deployPurchase
+      data: confirmReceived
+      wait: true
+
+- name: queryValue
+  job:
+    query-contract:
+      destination: $deployPurchase
+      data: value
+
+- name: assert
+  job:
+    assert:
+      key: $queryValue
+      relation: eq
+      val: 500

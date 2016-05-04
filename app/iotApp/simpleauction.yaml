@@ -1,0 +1,24 @@
+jobs:
+- name: deployAuction
+    job: 
+      deploy:
+        contract: simpleauction.sol
+        instance: all
+        data:  
+        wait: true
+
+- name: bid
+  job:
+    call:
+      destination: $deployAuction
+      data: bid
+      abi: SimpleAuction
+      amoung: 100
+
+- name: auctionEnd
+  job:
+    call:
+      destination: $deployAuction
+      data: auctionEnd
+      abi: SimpleAuction
+

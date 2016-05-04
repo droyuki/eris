@@ -1,0 +1,60 @@
+jobs:
+- name: deployCoin
+  job:
+    deploy:
+      contract: idi.sol
+      wait: false
+
+- name: afu_price
+  job:
+    set:
+      val: 50
+
+- name: dk_price
+  job:
+    set:
+      val: 100
+
+- name: afu_address
+  job:
+    set:
+      val: BC41B7990B4BF431A0DD05F8D4C36AD75DCCD130
+
+- name: dk_address
+  job:
+    set:
+      val: 1EBC0EA6CF7A4D8880B31B02D27713DE81A1CBE5
+
+- name: send2Afu
+  job:
+    call:
+      destination: $deployCoin
+      data: send $afu_address $afu_price
+      wait: true
+
+- name: send2Dk
+  job:
+    call:
+      destination: $deployCoin
+      data: send $dk_address $dk_price
+      wait: true
+
+- name: getClientAddr
+  job:
+    query-contract:
+      destination: $deployCoin
+      data: minter
+
+- name: deposit
+  job:
+    call:
+      destination: $deployCoin
+      data: mint $getClientAddr 1000
+      wait: true
+
+- name: query
+  job:
+    call:
+      destination: $deployCoin
+      data: query $getClientAddr
+      wait: true 
